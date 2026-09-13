@@ -1,0 +1,106 @@
+name: 🐛 Bug 报告
+description: 组件渲染异常、脚本报错、样式错乱等问题
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！请尽量填全下面的信息——尤其是**复现步骤**和**校验脚本输出**，
+        这两项能极大加快定位速度。
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 我已搜索过现有 Issue，确认这不是重复问题
+          required: true
+        - label: 我已阅读 CONTRIBUTING.md 中的「笔记内容的硬规则」
+          required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 问题出在哪个部分？
+      options:
+        - 组件渲染（note-ui.js / note-ui.css）
+        - 主页面（菜单、搜索、iframe）
+        - 构建脚本（scripts/）
+        - 流程图（Mermaid 渲染或校验）
+        - 代码高亮 / 主题切换
+        - 文档（README / SKILL.md / ui-showcase.html）
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 现象描述
+      description: 你期望看到什么？实际看到了什么？
+      placeholder: |
+        期望：表格的推荐列有高亮背景
+        实际：所有列背景一致，没有高亮
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      description: 越具体越好。如果能贴出最小复现的 HTML 片段，那就更好了。
+      placeholder: |
+        1. 打开 ui-showcase.html
+        2. 滚动到「表格」一节
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js 版本
+      description: 运行 `node --version` 的结果。如果问题与脚本无关，填「不涉及」即可。
+      placeholder: v22.23.1
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: 浏览器与版本
+      placeholder: Chrome 130 / Firefox 132 / Safari 18
+    validations:
+      required: true
+
+  - type: dropdown
+    id: protocol
+    attributes:
+      label: 打开方式
+      description: 本项目在 `file://` 下应当完全可用；如果只在某种方式下出问题，这本身就是重要线索。
+      options:
+        - 直接双击打开（file:// 协议）
+        - 本地起了 HTTP 服务器
+        - 托管在 GitHub Pages / 其他静态托管
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: verify-output
+    attributes:
+      label: 校验脚本输出
+      description: 请运行 `node scripts/scan-notes.js --verify` 并粘贴完整输出。若涉及流程图，再附上 `node scripts/validate-mermaid.js --verbose` 的输出。
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: console
+    attributes:
+      label: 浏览器控制台报错
+      description: 打开开发者工具 Console 面板，把红色报错粘贴进来。
+      render: shell
+    validations:
+      required: false

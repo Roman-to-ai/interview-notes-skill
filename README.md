@@ -1,46 +1,123 @@
 # 面试笔记系统
 
-基于纯静态 HTML 的通用面试笔记系统，支持**任意技术栈**，包含分类浏览、精准搜索、三套代码配色切换，每个考点独立页面展示。
+> 用 Claude Code 写面试笔记：纯静态 HTML + 组件库。**笔记由组件自由组合而成，没有内容模板。**
 
-## 快速开始
-
-### 1. 初始化项目
-
-```bash
-# 带预设分类初始化
-node scripts/init.js --categories "basics:基础考点:☕,advanced:进阶考点:🚀,system-design:系统设计:🏗️"
-
-# 或无参数初始化
-node scripts/init.js
-```
-
-### 2. 第三方库（已预置）
-
-```
-assets/lib/
-├── tailwind.min.js                     # Tailwind CSS v3.4.1 Play CDN
-├── highlight/
-│   ├── highlight.min.js                # highlight.js v11.9 核心
-│   ├── github-dark.min.css             # 代码主题：🌙 GitHub 暗色（默认）
-│   ├── monokai.min.css                 # 代码主题：🌅 Monokai 暖色
-│   └── tomorrow-night-bright.min.css   # 代码主题：🌟 Tomorrow 暖色
-└── mermaid/
-    └── mermaid.min.js                  # Mermaid v10.9 流程图
-```
-
-### 3. 打开浏览器
-
-直接打开 `index.html` 即可浏览。
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/Node-%E2%89%A5%2014-brightgreen.svg)](#环境要求)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Zero Dependency](https://img.shields.io/badge/dependencies-0-orange.svg)](#环境要求)
 
 ---
 
-## 目录说明
+## 这是什么
+
+一个面试笔记系统。你给它一份考点清单，Claude Code 按 `SKILL.md` 的流程把它变成一套可浏览、
+可搜索的静态笔记站点：左侧三级菜单、右侧内容区、三套代码配色、流程图点击放大。
+
+它和别的笔记框架最大的不同在于——
+
+### 没有内容模板，只有组件库
+
+绝大多数笔记工具的用法是「挑一个模板 → 把占位符替换成你的内容」。章节顺序、模块种类都是定死的，
+内容稍微特殊一点就要跟模板较劲。
+
+这里反过来：**组件是积木，笔记是一次自由拼装**。你（或 Claude）在笔记里只写声明式标记：
+
+```html
+<div data-ui="page" data-title="InnoDB 为什么用 B+ 树做索引？"
+     data-path="MySQL &gt; 索引 &gt; 数据结构" data-keypoints="B+树,聚簇索引,回表">
+
+  <div data-ui="callout" data-tone="key">核心结论写在这里</div>
+
+  <div data-ui="section" data-title="为什么不是红黑树">
+    <div data-ui="flow">graph TD; A-->B;</div>
+  </div>
+
+  <div data-ui="code" data-lang="sql">EXPLAIN SELECT ...</div>
+</div>
+```
+
+行为由 `assets/js/note-ui.js` 自动接管：章节自动编号并注册进右侧目录、代码块自动高亮并可复制、
+流程图自动渲染并可点击放大。**笔记里不写一行 JS。**
+
+一篇笔记用几个章节、按什么顺序、上哪些组件，完全由内容决定——没有"必须照搬的八股结构"。
+
+---
+
+## 组件一览
+
+共 14 个组件，覆盖面试笔记的绝大多数表达需求：
+
+| 组件 | 能做什么 |
+|------|---------|
+| `page` | 页面壳：面包屑 + 标题 + 考点路径 + 考察知识点徽标 |
+| `section` | 章节：自动编号、注册进右侧目录、一键复制本节链接 |
+| `code` | 代码：高亮、复制、语言/文件标签、行号、高亮指定行、对错描边、超长折叠、换行开关 |
+| `flow` | 流程图：Mermaid 渲染、题注、点击灯箱（缩放/平移/复位）、复制源码、语法错降级 |
+| `drawer` / `drawer-group` | 抽屉：原理拆解、面试官追问；组级全部展开/收起、手风琴互斥 |
+| `cards` / `card` | 卡片组：响应式网格，适合业务场景并列 |
+| `table` | 表格：滚动壳、斑马纹、表头吸顶、推荐列高亮、复制为 Markdown |
+| `tabs` / `tab` | 选项卡：初/中/高三级话术、多语言对照，记住选择、键盘切换 |
+| `callout` | 提示框：8 种语气（tip / note / key / hot / pit / warn / ok / quote） |
+| `word` / `words-auto` | 生词提示：查全局词典补音标与中文，或整块自动扫描标注 |
+| `zoom` | 任意图片 / SVG 复用灯箱放大 |
+
+**完整写法与真实渲染效果见 [`ui-showcase.html`](ui-showcase.html)** —— 写笔记前先看这个，它是唯一权威来源。
+
+内置交互（笔记里无需任何 JS）：右侧快速定位目录（滚动高亮 + 阅读进度条）、
+流程图灯箱、代码主题三套切换、打印/导出 PDF 时自动展开折叠内容。
+
+---
+
+## 快速开始
+
+### 方式 A：作为 Claude Code Skill 使用（推荐）
+
+把 `SKILL.md` 交给 Claude Code，它会在 `Skill` 工具可用时自动加载，或者你直接说
+"按 SKILL.md 的流程帮我建笔记"。
+
+流程共 4 步：
+
+```bash
+# 1. 初始化目录结构（复制资产、组件库、词典）
+node scripts/init.js --categories "basics:基础考点:☕,advanced:进阶考点:🚀"
+
+# 2. 批量建笔记：建目录 + 写入零内容空壳 + 生成菜单
+node scripts/create-note.js --batch notes.json
+
+# 3. —— 在空壳里自由组合组件写内容（写法见 ui-showcase.html）——
+
+# 4. 一键修复 + 校验
+node scripts/fix-base-href.js && node scripts/scan-notes.js --verify
+```
+
+第 3 步是 Claude 来完成的部分。`SKILL.md` 里的组件契约表告诉它有哪些积木可用、
+每块积木需要哪些属性，剩下的排版、章节划分、话术组织由它按内容自行判断。
+
+### 方式 B：作为模板手工使用
+
+不需要 Claude，也不需要 Node：
+
+```bash
+git clone git@github.com:Roman-to-ai/interview-notes-skill.git
+cd interview-notes-skill
+```
+
+**直接用浏览器打开 `index.html`** 就能看到效果。要加笔记就复制
+`notes/mysql/index/innodb-bplus-tree/` 这个示例，改内容，再手工往 `data/menu-data.js` 里加一条菜单项。
+
+> 手工方式下你享受不到组件库之外的自动化（菜单生成、路径修复、契约校验），
+> 但笔记本身仍由组件驱动，视觉效果完全一致。
+
+---
+
+## 目录结构
 
 ```
-interview-notes/
+interview-notes-skill/
 ├── index.html                          # 主页面（左侧菜单 + 右侧 iframe 内容区）
 ├── ui-showcase.html                    # ★ 组件速查手册（真实渲染 + 可复制写法）
-├── README.md                           # 本说明文件
+├── SKILL.md                            # ★ 生成流程 + 组件契约表（给 Claude Code 读）
 ├── assets/
 │   ├── css/
 │   │   ├── style.css                   # 主页面布局样式（菜单、搜索、响应式）
@@ -50,126 +127,90 @@ interview-notes/
 │   │   ├── menu.js                     # 菜单数据引擎（递归渲染、展开折叠）
 │   │   ├── search.js                   # 搜索过滤引擎（多关键词 AND、高亮、键盘导航）
 │   │   └── app.js                      # 主控逻辑（初始化、iframe 加载、路由、响应式）
-│   └── lib/                            # ★ 第三方库（已预置，离线可用）
-│       ├── tailwind.min.js             # 仅主页面使用
-│       ├── highlight/
-│       └── mermaid/
-├── notes/                              # ★ 考点笔记（按分类文件夹组织）
-│   └── <category>/<section>/<slug>/
-│       └── index.html                  # 📝 笔记（组件自由组合，无固定模块）
+│   └── lib/                            # 第三方库（已预置，离线可用）
+├── notes/                              # ★ 考点笔记，按分类组织
+│   └── <category>/<section>/<slug>/index.html
 ├── data/
-│   ├── menu-data.js                    # ★ 菜单数据（create-note.js 自动生成和维护）
+│   ├── menu-data.js                    # 菜单数据（create-note.js 自动维护，勿手改）
 │   └── dict.js                         # ★ 英文技术词全局词典（音标 + 中文）
-├── scripts/
-│   ├── init.js                         # 一键初始化（创建目录 + 复制资产）
-│   ├── create-note.js                  # 建目录 + 写零内容空壳 + 增量更新菜单
-│   ├── fix-base-href.js                # 自动修复 base href + Mermaid 验证
-│   ├── validate-mermaid.js             # 流程图语法验证（data-ui="flow"）
-│   └── scan-notes.js                   # 组件用量统计 + 契约校验
+├── scripts/                            # 构建与校验脚本
 └── references/
-    └── docx-extraction.md              # .docx 题目提取指南
-```
-
-> 旧的内容模板（`templates/`）与旧交互脚本（`note.js` / `toc.js` / `mermaid-lightbox.js` /
-> `note-style.css`）已被组件库取代，存放在 `_archive/` 中，可直接删除。
-
----
-
-## 创建新笔记
-
-### 方式一：批量创建（推荐）
-
-```bash
-# 1. 准备 notes.json（定义所有笔记的分类、标题、slug）
-# 2. 批量创建目录 + 写入零内容空壳 + 自动生成 menu-data.js
-node scripts/create-note.js --batch notes.json
-# 3. Claude 在空壳里用组件写内容（写法见 ui-showcase.html）
-# 4. 修复 + 校验
-node scripts/fix-base-href.js && node scripts/scan-notes.js --verify
-```
-
-### 方式二：手动创建
-
-1. 在对应分类下创建文件夹，如 `notes/basics/new-topic/`
-2. 复制任意已有笔记的 head/foot（或跑一次 `create-note.js` 生成空壳）
-3. 在 `data-ui="page"` 容器里自由组合组件填写内容
-4. 运行 `node scripts/create-note.js --batch notes.json` 更新菜单
-
-### 验证笔记
-
-```bash
-node scripts/scan-notes.js              # 基本扫描
-node scripts/scan-notes.js --verify     # 验证路径 + 组件契约
-node scripts/scan-notes.js --detailed   # 显示文件大小与每篇组件用量
+    └── docx-extraction.md              # .docx 题目提取参考
 ```
 
 ---
 
-## 笔记规范（组件而非固定模块）
+## 环境要求
 
-**没有必须照搬的八股结构**——章节数量、顺序、用到的组件都按内容需要决定。
-下面是常见的组合方式，供参考：
+| 项 | 要求 |
+|---|---|
+| 浏览器 | 任意现代浏览器。**`file://` 协议下全部功能可用**，无需起服务器 |
+| Node.js | **≥ 14**（仅在用脚本时需要；`create-note.js` 用了可选链） |
+| npm install | **不需要**。脚本只用 Node 原生模块（`fs` / `path` / `vm` / `child_process`） |
+| 网络 | **不需要**。所有第三方库已预置在 `assets/lib/`，完全离线 |
 
-| 组件 | 典型用途 |
-|------|---------|
-| `data-ui="page"` | 每篇一个：标题 + 考点路径 + 考察知识点徽标 |
-| `data-ui="section"` | 一个章节，自动编号并进入右侧目录 |
-| `data-ui="callout" data-tone="key"` | 开篇一句话结论 |
-| `data-ui="drawer-group"` + `drawer` | 原理拆解 / 面试官追问（可折叠，支持一键展开） |
-| `data-ui="flow"` | 流程 / 状态 / 时序图，点击放大 |
-| `data-ui="table" data-best` | 方案横向对比，高亮推荐列 |
-| `data-ui="code" data-mark data-tone` | 代码示例，可标错误 vs 正确写法 |
-| `data-ui="tabs"` + `.ui-speech-block` | 初/中/高三级话术，总→分→总 |
-| `data-ui="cards"` + `card` | 业务场景卡片，响应式排布 |
-| `data-ui="word"` / `data-words="auto"` | 英文术语的音标 + 中文提示 |
+`assets/lib/` 内置：[Tailwind CSS](https://tailwindcss.com) 3.4.1（仅主页面用）、
+[highlight.js](https://highlightjs.org) 11.9.0 + 三套主题、
+[Mermaid](https://mermaid.js.org) 10.9.0。许可与署名见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
 
 ---
 
-## 代码主题切换
+## 功能细节
 
-代码块顶部有 **3 个主题切换按钮**，点击即时生效，偏好自动保存：
-
-| 按钮 | 主题 | 风格特点 |
-|------|------|---------|
-| 🌙 暗色 | GitHub Dark | 护眼冷色调，GitHub 官方风格（**默认**） |
-| 🌅 Monokai | Monokai | 红棕暖色调，Sublime Text 经典风格 |
-| 🌟 Tomorrow | Tomorrow Night Bright | 黄绿暖色调，长时阅读舒适 |
-
----
-
-## 搜索功能
+### 搜索
 
 | 维度 | 匹配内容 | 示例 |
 |------|---------|------|
-| 题目名 | 叶子节点的标题文字 | 搜"面向对象" → 命中该题 |
+| 题目名 | 叶子节点标题 | 搜"面向对象" → 命中该题 |
 | 标签 tags | 每道题预设的关键词 | 搜"封装" → 命中含封装标签的题目 |
 | 文件路径 | 笔记文件夹路径 | 搜"oop" → 命中 oop 相关笔记 |
 | 分类名 | 所属一级/二级分类 | 搜"基础" → 匹配该分类下所有题目 |
 | 多关键词 | 空格分隔，全部匹配（AND） | 搜"Java 多态" → 必须同时包含两词 |
 
-快捷键：`Ctrl+K` 聚焦搜索框，`↓` 跳转匹配，`Enter` 打开第一个结果，`ESC` 清空搜索。
+快捷键：`Ctrl+K` 聚焦搜索框，`↓` 跳转匹配，`Enter` 打开第一个结果，`ESC` 清空。
+
+### 代码主题切换
+
+主页面右上角 ⚙️ 切换，或点代码块顶部的主题按钮，偏好自动保存：
+
+| 主题 | 风格 |
+|------|------|
+| 🌙 GitHub Dark | 护眼冷色调（默认） |
+| 🌅 Monokai | 红棕暖色，Sublime 经典 |
+| 🌟 Tomorrow Night Bright | 黄绿暖色，长时阅读舒适 |
+
+选择经 `localStorage` + `postMessage` 在父页面与 iframe 间同步，`file://` 下同样生效。
+
+### 支持任意技术栈
+
+系统不绑定任何技术栈。分类由 `--categories` 定义，代码块写 `data-lang="java"` / `"go"` / `"python"` 即可。
+可选分类示例：`basics` `collections` `jvm` `mysql` / `html-css` `javascript` `react` / `go-concurrency` /
+`system-design` `distributed`。
 
 ---
 
-## 支持任意技术栈
+## 贡献
 
-本系统**不绑定任何特定技术栈**。使用时：
+欢迎提 PR。**开始之前请务必读 [CONTRIBUTING.md](CONTRIBUTING.md)** ——
+本项目有两条容易踩坑的硬约定：
 
-1. 通过 `--categories` 参数在初始化时定义分类
-2. 代码块写 `data-lang="java"` / `"go"` / `"python"` 等（组件自动加载对应高亮）
-3. 分类和菜单由 `data/menu-data.js` 驱动，`create-note.js --batch` 自动维护
+1. **新增一个组件要改五处**（`note-ui.js` / `note-ui.css` / `ui-showcase.html` / `SKILL.md` /
+   `scripts/scan-notes.js` 的 `KNOWN_COMPONENTS`）。漏掉最后一处会让校验脚本把新组件当未知组件报错。
+2. 改了组件行为必须同步更新文档，`node scripts/scan-notes.js --verify` 必须通过。
 
-示例分类：
-- **Java**: `basics`, `collections`, `jvm`, `mysql`
-- **前端**: `html-css`, `javascript`, `react`, `vue`
-- **Go**: `go-basics`, `go-concurrency`, `go-stdlib`
-- **系统设计**: `system-design`, `distributed`, `architecture`
+提新组件前建议先看看现有 14 个能不能组合出你要的效果——本项目的设计哲学是
+**用少数正交的组件自由组合**，而不是为每个场景新增组件。
 
 ---
 
-## 注意事项
+## 许可证
 
-1. **所有第三方库已预置在 `assets/lib/`**，完全离线可用，无需网络
-2. 笔记中的资源引用使用 `<base href>` + `assets/...` 路径，自动适配目录深度
-3. 所有脚本仅使用 Node.js 原生库（`fs`、`path`、`readline`），无需 npm install
-4. 菜单数据 `data/menu-data.js` 由 `create-note.js` 自动维护，无需手动编辑
+[MIT](LICENSE) © 2026 Roman-to-ai
+
+`notes/` 目录下的笔记**内容**版权归各笔记作者所有，不适用 MIT 许可证；MIT 仅覆盖系统代码。
+详见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
+
+## 致谢
+
+感谢 [Tailwind CSS](https://tailwindcss.com)、[highlight.js](https://highlightjs.org)、
+[Mermaid](https://mermaid.js.org) 三个优秀的开源项目。

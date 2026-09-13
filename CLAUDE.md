@@ -52,6 +52,9 @@
 ## 约定
 
 - 目录 slug 只用纯英文，禁止 `01-xxx` 数字前缀（路径需稳定）
-- 新写法一律用 `data-ui` 组件，**不要**复用 `_archive/` 里旧模板的类名
-- 新增可复用能力 → 往 `note-ui.js` 的 `registry` 加组件 + `note-ui.css` 加样式 + `ui-showcase.html` 加示例 + SKILL.md 组件表加一行
+- 新写法一律用 `data-ui` 组件；旧模板类名（`summary-card` / `code-wrapper` 等）已被
+  `scan-notes.js` 的 `LEGACY_CLASSES` 列入黑名单，出现即校验失败
+- 新增可复用能力 → **五处**同步：`note-ui.js` 的 `registry` 加组件 + `note-ui.css` 加样式 +
+  `ui-showcase.html` 加示例 + SKILL.md 组件表加一行 + `scan-notes.js` 的 `KNOWN_COMPONENTS`
+  （漏最后一处会让 `--verify` 把新组件当未知组件报错）
 - `data/dict.js` 只增不改键名（键为小写短语，音标用 IPA）

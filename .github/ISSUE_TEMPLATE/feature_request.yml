@@ -1,0 +1,67 @@
+name: ✨ 功能建议
+description: 提议新组件、新能力或改进现有行为
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **提新组件之前，请先看一眼 `ui-showcase.html`。**
+
+        本项目的设计哲学是**用少数正交的组件自由组合**，而不是为每个场景新增一个组件。
+        如果现有的 14 个组件稍加组合就能达到目的，我们更倾向于不加新组件。
+        所以请先说明**场景**，再谈**标记设计**。
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 建议类型
+      options:
+        - 新增组件
+        - 改进现有组件的行为或样式
+        - 构建脚本 / 工具链
+        - 主页面功能（菜单、搜索等）
+        - 文档改进
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: scenario
+    attributes:
+      label: 使用场景
+      description: 你在写什么内容时遇到了障碍？请给出真实的笔记片段或题目例子，而不是抽象描述。
+      placeholder: |
+        我在整理「分布式一致性协议」时，需要把 Raft 的多个角色用不同颜色并列展示，
+        现有 cards 组件做不到按角色着色……
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 你试过用现有组件怎么解决？
+      description: 请说明现有组件为何不够用。这一步能帮我们判断是该加组件，还是该改进现有组件。
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 设想的标记写法
+      description: 如果你已经想好了 `data-ui` 的属性设计，请写在这里。
+      render: html
+      placeholder: |
+        <div data-ui="badge" data-text="高频" data-tone="hot"></div>
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: willing
+    attributes:
+      label: 参与意愿
+      options:
+        - label: 我愿意自己提 PR 实现这个功能
+          required: false
+        - label: 我已读过 CONTRIBUTING.md 中「新增一个组件要改五处」一节
+          required: false

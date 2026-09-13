@@ -216,6 +216,10 @@ node scripts/fix-base-href.js
 
 ## 已废弃
 
-`templates/`（note-template.html、modules/、types/、content-types.json、assemble.js）
-以及 `assets/css/note-style.css`、`assets/js/note.js`、`assets/js/toc.js`、
-`assets/js/mermaid-lightbox.js` 已全部被组件库取代，现位于 `_archive/`（可直接删除）。
+旧模板方案（`templates/` 下的 note-template.html、modules/、types/、content-types.json、
+assemble.js，以及 `note-style.css`、`note.js`、`toc.js`、`mermaid-lightbox.js`）
+已全部被组件库取代，并已从仓库移除（需要查阅时可从 git 历史中取回）。
+
+**不要**在笔记里复用旧模板的类名——`summary-card`、`knowledge-card`、`code-wrapper`、
+`speech-tab`、`scene-card` 等已被 `scan-notes.js` 的 `LEGACY_CLASSES` 列入黑名单，
+出现即校验失败。所有写法一律用 `data-ui` 组件，权威参考是 `ui-showcase.html`。

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 先读组件速查手册
+    url: https://github.com/Roman-to-ai/interview-notes-skill/blob/main/ui-showcase.html
+    about: 14 个组件的真实渲染与可复制写法。很多「这个功能怎么实现」的问题，这里已有答案。
+  - name: 🤝 贡献指南
+    url: https://github.com/Roman-to-ai/interview-notes-skill/blob/main/CONTRIBUTING.md
+    about: 环境搭建、提交规范，以及「新增一个组件要改五处」这条最容易踩坑的约定。
+  - name: 💬 提问与讨论
+    url: https://github.com/Roman-to-ai/interview-notes-skill/discussions
+    about: 用法疑问、想法交流请走 Discussions，Issue 区留给明确的 Bug 与功能建议。
