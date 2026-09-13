@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InnoDB 为什么用 B+ 树做索引？</title>
+  <base href="../../../../">
+  <link rel="stylesheet" href="assets/lib/highlight/github-dark.min.css" class="code-theme" data-theme="github-dark">
+  <link rel="stylesheet" href="assets/lib/highlight/monokai.min.css" class="code-theme" data-theme="monokai" disabled>
+  <link rel="stylesheet" href="assets/lib/highlight/tomorrow-night-bright.min.css" class="code-theme" data-theme="tomorrow-night-bright" disabled>
+  <link rel="stylesheet" href="assets/css/note-ui.css">
+  <script src="data/dict.js"></script>
+</head>
+<body>
+
+<div data-ui="page"
+     data-title="InnoDB 为什么用 B+ 树做索引？"
+     data-path="MySQL &gt; 索引 &gt; 数据结构"
+     data-keypoints="B+树,聚簇索引,回表,覆盖索引"
+     data-badges="高频考察,难度⭐⭐⭐">
+
+  <section data-ui="section" data-title="✨ 一句话结论">
+    <div data-ui="callout" data-tone="key" data-title="🎯 先说结论">
+      B+ 树把所有数据都放在叶子层、非叶子层只存键和页指针，因此同样 16KB 的页能装下更多键、树更矮，
+      一次主键查询只需 3 次磁盘 IO；叶子层又用双向链表串起来，范围查询只需定位一次就能顺序扫描。
+    </div>
+  </section>
+
+  <section data-ui="section" data-title="📚 原理拆解">
+    <div data-ui="drawer-group">
+      <details data-ui="drawer" data-title="为什么不是红黑树 / AVL 树？" data-icon="🌲" open>
+        <p>红黑树是<b>二叉</b>树，树高 log₂N，一千万行就是 24 层，而每层节点通常独占一个磁盘页 → 最坏 24 次随机 IO。</p>
+        <p>B+ 树是高 m 叉树，m（分支数）由「页大小 ÷（键 + 指针）」决定，通常上百，树高被压到 3~4 层。</p>
+      </details>
+
+      <details data-ui="drawer" data-title="为什么不是 Hash 索引？" data-icon="#️⃣">
+        <p>Hash 只能做等值查询，<code>=</code> 之外（范围、排序、最左前缀匹配）全部无能为力。</p>
+        <p>而且哈希冲突退化后是不确定的，InnoDB 只在 Memory 引擎和自适应哈希（adaptive hash index）内部使用它。</p>
+      </details>
+
+      <details data-ui="drawer" data-tone="faq" data-title="追问：三层 B+ 树到底能存多少行？">
+        <p>按默认 <code>innodb_page_size = 16KB</code>、主键为 BIGINT（8 字节）+ 页指针（6 字节）估算：</p>
+        <div data-ui="code" data-lang="sql" data-title="估算非叶子层分支数" data-mark="3">
+-- 每个目录项：8(主键) + 6(页指针) ≈ 14 字节，再加约 1 字节记录头开销
+-- 单个 16KB 页可容纳的分支数
+SELECT FLOOR(16384 / 15);          -- ≈ 1092 分支
+-- 叶子层按每行 1KB 估算
+SELECT FLOOR(16384 / 1024);        -- ≈ 16 行/页
+        </div>
+        <p>于是两层非叶子 + 一层叶子 ≈ 1092 × 1092 × 16 ≈ <b>1900 万行</b>，这正是「三层能撑两千万行」这个说法的来历。</p>
+      </details>
+
+      <details data-ui="drawer" data-tone="pit" data-title="踩坑：主键太长会撑大所有二级索引">
+        <p>二级索引的叶子存的是<b>主键值</b>而不是行地址。用 UUID 做主键时，每个二级索引的每一行都要多存 36 字节，
+           并且随机写入造成页分裂，实测索引体积和写入抖动都明显恶化。</p>
+      </details>
+    </div>
+  </section>
+
+  <section data-ui="section" data-title="🔁 一次主键查询的路径">
+    <div data-ui="flow" data-caption="B+ 树下降 3 层定位一行数据">
+graph TD
+    A[执行器拿到主键 1024] --> B[读根页: 通常在 buffer pool]
+    B --> C{页内二分找分支}
+    C -->|命中指针| D[读中间层页]
+    D --> E[再次二分]
+    E --> F[读叶子页]
+    F --> G[页内二分定位记录]
+    G --> H{是否覆盖索引?}
+    H -->|是| I[直接返回列]
+    H -->|否| J[拿主键回表读聚簇索引]
+    J --> I
+    </div>
+  </section>
+
+  <section data-ui="section" data-title="📊 数据结构横向对比">
+    <table data-ui="table" data-caption="四种索引结构在 MySQL 场景下的取舍" data-best="3">
+      <thead>
+        <tr><th>维度</th><th>红黑树</th><th>B+ 树</th><th>Hash</th><th>跳表</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>树高（1e7 行）</td><td>≈24</td><td>3~4</td><td>1（无层级）</td><td>≈24</td></tr>
+        <tr><td>磁盘 IO 次数</td><td>多</td><td>少</td><td>1</td><td>内存结构</td></tr>
+        <tr><td>范围查询</td><td>需中序遍历</td><td>叶子链表顺序扫</td><td>不支持</td><td>支持</td></tr>
+        <tr><td>ORDER BY 利用</td><td>有限</td><td>天然有序</td><td>无</td><td>有限</td></tr>
+        <tr><td>MySQL 中的使用者</td><td>—</td><td>InnoDB 聚簇/二级索引</td><td>Memory 引擎、自适应哈希</td><td>Redis zset</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section data-ui="section" data-title="💻 用 EXPLAIN 验证">
+    <div data-ui="code" data-lang="sql" data-tone="wrong" data-title="错误：函数包住列，索引失效">
+SELECT id, amount FROM orders WHERE YEAR(created_at) = 2026;
+    </div>
+    <div data-ui="code" data-lang="sql" data-tone="right" data-title="正确：写成范围，走 idx_created_amount">
+SELECT id, amount FROM orders
+WHERE created_at &gt;= '2026-01-01' AND created_at &lt; '2027-01-01';
+    </div>
+    <div data-ui="code" data-lang="sql" data-title="期望的 EXPLAIN 输出">
+-- key: idx_created_amount   Extra: Using index   ← 覆盖索引，无回表
+    </div>
+    <div data-ui="callout" data-tone="tip">
+      <code>Using index</code> 表示覆盖索引；<code>Using index condition</code> 是索引下推；
+      出现 <code>Using filesort</code> 说明排序没能利用索引顺序。
+    </div>
+  </section>
+
+  <section data-ui="section" data-title="🎤 面试回答话术">
+    <div data-ui="tabs" data-mem="bplus-speech">
+      <div data-ui="tab" data-key="junior" data-label="🟢 初级（~150字）">
+        <div class="ui-speech-block" data-part="intro">
+          <div class="ui-speech-part">【总】核心结论</div>
+          <p>索引像书的目录，B+ 树能让数据库少翻几页就找到数据。</p>
+        </div>
+        <div class="ui-speech-block" data-part="body">
+          <div class="ui-speech-part">【分】分点展开</div>
+          <ol>
+            <li>二叉树太深，每次下探都可能是一次磁盘读</li>
+            <li>B+ 树一个节点是一整页，分支多、树矮</li>
+            <li>叶子之间有链表，范围查询和排序都方便</li>
+          </ol>
+        </div>
+        <div class="ui-speech-block" data-part="end">
+          <div class="ui-speech-part">【总】总结升华</div>
+          <p>所以 InnoDB 选 B+ 树，本质是为磁盘 IO 优化的结果。</p>
+        </div>
+      </div>
+      <div data-ui="tab" data-key="mid" data-label="🟡 中级（~300字）">
+        <div class="ui-speech-block" data-part="intro">
+          <div class="ui-speech-part">【总】核心结论</div>
+          <p>B+ 树非叶子只存键和指针、叶子存数据并双向串联，树矮且顺序友好，因此兼顾点查与范围查。</p>
+        </div>
+        <div class="ui-speech-block" data-part="body">
+          <div class="ui-speech-part">【分】分点展开</div>
+          <ol>
+            <li>16KB 页 ÷ 15 字节目录项 ≈ 1092 分支，三层可放约两千万行</li>
+            <li>聚簇索引叶子存整行，二级索引叶子存主键，所以二级索引要回表</li>
+            <li>覆盖索引让 Extra 出现 Using index，把回表省掉</li>
+          </ol>
+        </div>
+        <div class="ui-speech-block" data-part="end">
+          <div class="ui-speech-part">【总】总结升华</div>
+          <p>建索引的原则是提高区分度、减少回表，并用 EXPLAIN 验证。</p>
+        </div>
+      </div>
+      <div data-ui="tab" data-key="senior" data-label="🔴 高级（~500字）">
+        <div class="ui-speech-block" data-part="intro">
+          <div class="ui-speech-part">【总】核心结论</div>
+          <p>这是「写放大、空间、读性能」三者的权衡，还要放在优化器代价模型和 buffer pool 命中率下看。</p>
+        </div>
+        <div class="ui-speech-block" data-part="body">
+          <div class="ui-speech-part">【分】分点展开</div>
+          <ol>
+            <li>树矮的收益只在冷数据落盘时体现；热页全在 buffer pool 时，B+ 树高度差异被内存访问摊平</li>
+            <li>主键必须单调递增，否则页分裂造成碎片，实测写入吞吐下降明显，这是 UUID 主键的真实代价</li>
+            <li>统计信息靠 index dives 采样，数据倾斜时优化器会选错索引，必要时 ANALYZE TABLE 或 force index</li>
+            <li>RR 隔离级别下用 next-key lock 抑制幻读，间隙锁在高并发插入场景会放大锁冲突</li>
+          </ol>
+        </div>
+        <div class="ui-speech-block" data-part="end">
+          <div class="ui-speech-part">【总】总结升华</div>
+          <p>我的习惯是先定读写比，再从慢日志反推索引设计，最后用压测确认收益。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section data-ui="section" data-title="🏢 业务场景">
+    <div data-ui="cards" data-cols="auto" data-min="250">
+      <div data-ui="card" data-icon="📦" data-title="订单表主键选型" data-tone="hot" data-tags="写入密集,分库分表">
+        <p>自增 BIGINT 主键保证 B+ 树尾部追加，避免页分裂；分库分表后再用雪花算法补全局唯一。</p>
+      </div>
+      <div data-ui="card" data-icon="🔍" data-title="报表查询覆盖索引" data-tone="key">
+        <p>把 <code>GROUP BY</code> 维度列和聚合列一起放进联合索引，扫描走索引不回表，报表耗时降一半。</p>
+      </div>
+      <div data-ui="card" data-icon="⚠️" data-title="低区分度索引">
+        <p><code>status</code> 只有 3 个取值，建索引后优化器仍走全表扫描，白付写入代价，最后删掉。</p>
+      </div>
+      <div data-ui="card" data-icon="🧮" data-title="深分页">
+        <p><code>LIMIT 500000,20</code> 要丢弃前 50 万条，改成 <code>WHERE id &gt; 上次最大 id</code> 游标翻页。</p>
+      </div>
+    </div>
+  </section>
+
+  <section data-ui="section" data-title="💬 面试官追问">
+    <div data-ui="drawer-group" data-accordion="false">
+      <details data-ui="drawer" data-tone="faq" data-title="二级索引的叶子到底存什么？">
+        <p>存索引列 + 主键值，不存整行。所以通过二级索引定位后，还要拿主键再走一遍聚簇树，这就是回表。</p>
+      </details>
+      <details data-ui="drawer" data-tone="faq" data-title="为什么叶子节点要双向链表？">
+        <p>为了 <code>BETWEEN</code>、<code>ORDER BY</code>、<code>&gt;</code> 这类顺序访问：定位到起点后顺着链表扫，不必回到根再下降。</p>
+      </details>
+      <details data-ui="drawer" data-tone="faq" data-title="页分裂什么时候发生？有什么后果？">
+        <p>插入的键落在一个已满的页中间时会分裂成两页并各占一半，产生碎片、放大写入。
+           单调递增主键让插入总是落在最后一页，从而规避。</p>
+      </details>
+    </div>
+  </section>
+
+</div>
+
+<script src="assets/lib/highlight/highlight.min.js"></script>
+<script src="assets/lib/mermaid/mermaid.min.js"></script>
+<script src="assets/js/note-ui.js"></script>
+</body>
+</html>

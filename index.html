@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>面试笔记</title>
+
+  <!-- ═══ 第三方库（Tailwind CSS Play CDN） ═══ -->
+  <script src="assets/lib/tailwind.min.js"></script>
+
+  <!-- ═══ 自定义样式 ═══ -->
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <!-- ═══ Favicon ═══ -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+</head>
+<body>
+
+  <!-- ═══ 整体布局 ═══ -->
+  <div class="app-layout">
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 左侧菜单栏                                     -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <aside class="sidebar" id="sidebar">
+
+      <!-- ── 头部 Logo ────────────────────────────── -->
+      <div class="sidebar-header">
+        <a href="#" class="logo" onclick="document.getElementById('search-input').value=''; window.SearchEngine.search(); document.querySelectorAll('.menu-category,.menu-subcategory').forEach(el=>el.classList.remove('open')); return false;">
+          <span class="logo-icon">📝</span>
+          <div>
+            <div class="logo-text">面试笔记</div>
+            <div class="logo-sub">Interview Notes</div>
+          </div>
+        </a>
+        <div class="settings-wrapper">
+          <button class="settings-btn" id="settings-btn" aria-label="设置" title="代码主题">⚙️</button>
+          <div class="settings-dropdown" id="settings-dropdown">
+            <div class="settings-dropdown-title">代码主题</div>
+            <button class="settings-theme-option active" data-theme="github-dark" onclick="applyCodeTheme('github-dark')">🌙 暗色</button>
+            <button class="settings-theme-option" data-theme="monokai" onclick="applyCodeTheme('monokai')">🌅 Monokai</button>
+            <button class="settings-theme-option" data-theme="tomorrow-night-bright" onclick="applyCodeTheme('tomorrow-night-bright')">🌟 Tomorrow</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 搜索框 ────────────────────────────────── -->
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          id="search-input"
+          class="search-input"
+          placeholder="搜索考点、关键字…"
+          autocomplete="off"
+        >
+        <span class="search-shortcut">Ctrl+K</span>
+      </div>
+
+      <!-- ── 菜单树 ────────────────────────────────── -->
+      <nav class="menu-container" id="menu-container">
+        <!-- MenuEngine 动态渲染 -->
+      </nav>
+
+    </aside>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 右侧内容区                                     -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <main class="content-area">
+
+      <!-- 欢迎页 -->
+      <div class="welcome-page" id="welcome-page">
+        <div class="icon">📚</div>
+        <h2>面试考点笔记</h2>
+        <p>
+          从左侧菜单选择考点，开始学习。<br>
+          支持分类浏览和关键词搜索。<br>
+          每个考点按需组合流程图、代码示例、面试话术等组件。
+        </p>
+      </div>
+
+      <!-- iframe 加载笔记内容（初始隐藏） -->
+      <iframe id="content-frame" style="display:none;" title="笔记内容"></iframe>
+
+    </main>
+  </div>
+
+  <!-- ═══ PC 端收起/展开按钮 ═══ -->
+  <button class="sidebar-toggle-btn" id="sidebar-toggle" aria-label="收起菜单">◀</button>
+
+  <!-- ═══ 移动端汉堡按钮 ═══ -->
+  <button class="mobile-toggle" id="mobile-toggle" aria-label="菜单">☰</button>
+
+  <!-- ═══ 移动端遮罩 ═══ -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- JS 脚本（按依赖顺序加载）                          -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <script src="assets/js/menu.js"></script>
+  <script src="assets/js/search.js"></script>
+  <script src="data/menu-data.js"></script>
+  <script src="assets/js/app.js"></script>
+
+  <!-- ═══ 全局代码主题设置 ═══ -->
+  <script>
+    (function () {
+      var STORAGE_KEY = 'notes-code-theme';
+
+      // 应用主题到当前页面 + iframe
+      window.applyCodeTheme = function (theme) {
+        try { localStorage.setItem(STORAGE_KEY, theme); } catch (e) {}
+        updateDropdownUI(theme);
+        applyToIframe(theme);
+      };
+
+      // 更新下拉菜单高亮
+      function updateDropdownUI(theme) {
+        document.querySelectorAll('.settings-theme-option').forEach(function (btn) {
+          btn.classList.toggle('active', btn.dataset.theme === theme);
+        });
+      }
+
+      // 通知 iframe 中的笔记应用主题（postMessage，兼容 file:// 协议）
+      function applyToIframe(theme) {
+        var frame = document.getElementById('content-frame');
+        if (!frame || !frame.contentWindow) return;
+        frame.contentWindow.postMessage({ type: 'code-theme-change', theme: theme }, '*');
+      }
+
+      // 齿轮按钮 toggle
+      var btn = document.getElementById('settings-btn');
+      var dropdown = document.getElementById('settings-dropdown');
+      if (btn && dropdown) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          dropdown.classList.toggle('open');
+        });
+        document.addEventListener('click', function (e) {
+          if (!dropdown.contains(e.target) && e.target !== btn) {
+            dropdown.classList.remove('open');
+          }
+        });
+        // iframe 加载完成后同步主题
+        var frame = document.getElementById('content-frame');
+        if (frame) {
+          frame.addEventListener('load', function () {
+            var saved = '';
+            try { saved = localStorage.getItem(STORAGE_KEY) || ''; } catch (e) {}
+            if (saved) applyToIframe(saved);
+          });
+        }
+      }
+
+      // 初始化：恢复下拉高亮
+      var saved = '';
+      try { saved = localStorage.getItem(STORAGE_KEY) || ''; } catch (e) {}
+      if (saved) updateDropdownUI(saved);
+    })();
+  </script>
+
+</body>
+</html>

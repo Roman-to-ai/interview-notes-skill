@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>笔记组件库 — 速查手册</title>
+
+  <link rel="stylesheet" href="assets/lib/highlight/github-dark.min.css" class="code-theme" data-theme="github-dark">
+  <link rel="stylesheet" href="assets/lib/highlight/monokai.min.css" class="code-theme" data-theme="monokai" disabled>
+  <link rel="stylesheet" href="assets/lib/highlight/tomorrow-night-bright.min.css" class="code-theme" data-theme="tomorrow-night-bright" disabled>
+  <link rel="stylesheet" href="assets/css/note-ui.css">
+  <script src="data/dict.js"></script>
+
+  <style>
+    /* 以下样式仅用于本演示页，不属于组件库 */
+    .demo-chrome {
+      position: fixed; top: 14px; right: 14px; z-index: 10000;
+      display: flex; gap: 6px;
+    }
+    .demo-chrome button {
+      font: 13px/1.6 -apple-system, "Microsoft YaHei", sans-serif;
+      padding: 6px 12px; border-radius: 8px; cursor: pointer;
+      border: 1px solid #e2e8f0; background: #fff; color: #475569;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+    .demo-chrome button:hover { border-color: #2563eb; color: #2563eb; }
+    .demo-note {
+      font-size: 13px; color: #94a3b8; margin: 0 0 12px;
+    }
+    .demo-label {
+      display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em;
+      color: #64748b; text-transform: uppercase; margin-bottom: 4px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="demo-chrome">
+  <button onclick="cycleTheme()">🎨 代码主题</button>
+  <button onclick="NoteUI.expandAll(true)">展开全部</button>
+  <button onclick="NoteUI.expandAll(false)">收起全部</button>
+</div>
+
+<div data-ui="page"
+     data-title="笔记组件库速查手册"
+     data-subtitle="生成笔记时只需写声明式标记，复制/高亮/灯箱/折叠/响应式全部由 note-ui.js 自动完成"
+     data-path="面试笔记 &gt; 组件库 &gt; 速查"
+     data-keypoints="code, flow, drawer, cards, callout, table, tabs, word, section, page"
+     data-badges="v1.0 核心十件套, 零 Tailwind 依赖">
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <section data-ui="section" data-title="📦 如何引入">
+    <p>任何一篇笔记只要包含下面这段头部 + 尾部，就能使用全部组件。<b>不需要模板文件，不需要固定模块顺序</b>，内容按需自由组合。</p>
+    <div data-ui="code" data-lang="html" data-title="笔记最小骨架">
+&lt;!DOCTYPE html&gt;
+&lt;html lang="zh-CN"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;base href="{{BASE_HREF}}"&gt;
+  &lt;link rel="stylesheet" href="assets/lib/highlight/github-dark.min.css" class="code-theme" data-theme="github-dark"&gt;
+  &lt;link rel="stylesheet" href="assets/lib/highlight/monokai.min.css" class="code-theme" data-theme="monokai" disabled&gt;
+  &lt;link rel="stylesheet" href="assets/lib/highlight/tomorrow-night-bright.min.css" class="code-theme" data-theme="tomorrow-night-bright" disabled&gt;
+  &lt;link rel="stylesheet" href="assets/css/note-ui.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div data-ui="page" data-title="什么是索引？" data-path="MySQL &amp;gt; 索引"&gt;
+    &lt;!-- 自由组合组件，内容不限 --&gt;
+  &lt;/div&gt;
+
+  &lt;script src="assets/lib/highlight/highlight.min.js"&gt;&lt;/script&gt;
+  &lt;script src="assets/lib/mermaid/mermaid.min.js"&gt;&lt;/script&gt;
+  &lt;script src="data/dict.js"&gt;&lt;/script&gt;
+  &lt;script src="assets/js/note-ui.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+    </div>
+    <div data-ui="callout" data-tone="note">
+      <code>&lt;base href&gt;</code> 仍写 <code>{{BASE_HREF}}</code> 占位符，由 <code>node scripts/fix-base-href.js</code> 按目录深度自动替换。
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <section data-ui="section" data-title="💻 code — 代码块">
+    <p class="demo-label">效果</p>
+    <div data-ui="code" data-lang="java" data-title="HashMap.java · putVal 关键片段" data-lines="true" data-mark="4,9-11">
+if ((p = tab[i = (n - 1) &amp; hash]) == null)
+    tab[i] = newNode(hash, key, value, null);
+else {
+    if (p.hash == hash &amp;&amp; ((k = p.key) == key || (key != null &amp;&amp; key.equals(k))))
+        e = p;
+    else if (p instanceof TreeNode)
+        e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(this, tab, hash, key, value);
+    else {
+        for (int binCount = 0; ; ++binCount) {
+            if ((e = p.next) == null) {
+                p.next = newNode(hash, key, value, null);
+                if (binCount &gt;= TREEIFY_THRESHOLD - 1)
+                    treeifyBin(tab, hash);
+                break;
+            }
+        }
+    }
+}
+    </div>
+    <div data-ui="code" data-lang="sql" data-tone="wrong" data-title="错误写法：索引失效">
+SELECT * FROM orders WHERE YEAR(created_at) = 2026;
+    </div>
+    <div data-ui="code" data-lang="sql" data-tone="right" data-title="正确写法：范围查询走索引">
+SELECT id, amount FROM orders
+WHERE created_at &gt;= '2026-01-01' AND created_at &lt; '2027-01-01';
+    </div>
+    <div data-ui="code" data-lang="go" data-max="180" data-title="超长代码自动折叠">
+package main
+
+import "fmt"
+
+// 这段代码超过 data-max 高度时会显示「展开全文」按钮
+func worker(id int, jobs &lt;-chan int, results chan&lt;- int) {
+    for j := range jobs {
+        fmt.Println("worker", id, "started job", j)
+        results &lt;- j * 2
+    }
+}
+    </div>
+
+    <p class="demo-label">写法</p>
+    <div data-ui="code" data-lang="html" data-title="code 组件契约">&lt;!-- 代码直接写在元素内部，会自动去掉公共缩进 --&gt;
+&lt;div data-ui="code"
+     data-lang="java"          &lt;!-- 省略则自动识别；不支持的语言自动降级 --&gt;
+     data-title="Xxx.java"     &lt;!-- 头部文件/说明标签 --&gt;
+     data-lines="true"         &lt;!-- 显示行号 --&gt;
+     data-mark="4,9-11"        &lt;!-- 高亮行（黄色） --&gt;
+     data-del="3" data-add="7" &lt;!-- 红/绿语气，可做错误 vs 正确对照 --&gt;
+     data-tone="wrong"         &lt;!-- wrong | right：整块红/绿描边 --&gt;
+     data-max="180"&gt;           &lt;!-- 超过该高度折叠 --&gt;
+  public void foo() { ... }
+&lt;/div&gt;
+&lt;!-- 自带按钮：📋 复制、换行（自动换行开关） --&gt;</div>
+    <div data-ui="callout" data-tone="tip" data-title="支持的语言">
+      hljs 内置：bash c cpp csharp css diff go graphql ini java javascript json kotlin less lua makefile markdown objectivec perl php plaintext python r ruby rust scss shell sql swift typescript vbnet wasm xml yaml。
+      其余写法（<code>mysql</code> <code>py</code> <code>sh</code> <code>dockerfile</code> <code>text</code> …）由组件内的别名表自动映射或降级为纯文本，不会白屏。
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <section data-ui="section" data-title="🔁 flow — 流程图">
+    <p class="demo-label">效果（点击图可放大，滚轮缩放 / 拖拽平移 / 双击复位）</p>
+    <div data-ui="flow" data-caption="一次 SELECT 查询的完整路径">
+graph TD
+    A[客户端发起 SQL] --> B{查询缓存命中?}
+    B -->|命中| C[直接返回结果]
+    B -->|未命中| D[解析器: 词法 + 语法分析]
+    D --> E[预处理器: 表名列名合法性]
+    E --> F[优化器: 选索引 / 决定 join 顺序]
+    F --> G[执行器: 调用 handler 接口]
+    G --> H[InnoDB 读页到 buffer pool]
+    H --> I[行过滤 + 返回客户端]
+    C --> J[结束]
+    I --> J
+    </div>
+    <div data-ui="flow" data-caption="状态图同样支持">
+stateDiagram-v2
+    [*] --> 空闲
+    空闲 --> 已锁定: lock()
+    已锁定 --> 运行中: schedule()
+    运行中 --> 阻塞: 等待 IO
+    阻塞 --> 运行中: IO 就绪
+    运行中 --> 已终止: 退出
+    已终止 --> [*]
+    </div>
+    <div data-ui="flow" data-zoom="off" data-caption="data-zoom=off 时禁用放大">
+graph LR
+    A[写主库] --> B[binlog]
+    B --> C[从库 IO 线程]
+    C --> D[relay log]
+    D --> E[SQL 线程重放]
+    </div>
+
+    <p class="demo-label">写法</p>
+    <div data-ui="code" data-lang="html" data-title="flow 组件契约">&lt;div data-ui="flow"
+     data-caption="图题（自动显示在图下方）"
+     data-zoom="off"&gt;      &lt;!-- 可选：禁用点击放大 --&gt;
+graph TD
+    A[开始] --&gt; B{条件}
+    B --&gt;|是| C[执行]
+    B --&gt;|否| D[跳过]
+&lt;/div&gt;
+&lt;!-- 自动追加：🔍 放大按钮、复制源码按钮、缩放操作提示
+     语法错误时：整块降级为红色错误框 + 原源码，不会白屏 --&gt;</div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <section data-ui="section" data-title="📂 drawer — 抽屉 / 折叠">
+    <p class="demo-label">效果（组顶部自带「展开全部 / 收起全部」）</p>
+    <div data-ui="drawer-group" data-accordion="false">
+      <details data-ui="drawer" data-title="知识点 1：为什么 InnoDB 选 B+ 树而不是 B 树？" data-icon="📚" open>
+        <p>B+ 树的非叶子节点<b>不存数据</b>，只存键和指针，同样大小的页能装下更多键，树更矮 → 磁盘 IO 次数更少。</p>
+        <p>叶子节点用双向链表串联，范围查询只需一次定位后顺序扫描，而 B 树要做中序遍历。</p>
+      </details>
+      <details data-ui="drawer" data-title="知识点 2：回表是什么，如何避免？" data-icon="📚">
+        <p>二级索引叶子节点只存主键值，按二级索引查到主键后，还要回到聚簇索引取整行，这一步叫<b>回表</b>。</p>
+        <p>避免方式：覆盖索引 —— 让 <code>SELECT</code> 的列全部落在索引里，<code>EXPLAIN</code> 显示 <code>Using index</code>。</p>
+        <div data-ui="code" data-lang="sql">SELECT id, user_id, amount FROM orders WHERE user_id = 100;
+-- idx_user_amount(user_id, amount) 已覆盖全部列，无回表</div>
+      </details>
+      <div data-ui="drawer" data-tone="flat" data-title="知识点 3：用 div 写也可以（会被自动升级为 details）">
+        <p>组件不要求你必须写 <code>&lt;details&gt;</code>；写 <code>&lt;div&gt;</code> 时 JS 会替换成 <code>details</code>，但语义与键盘可访问性建议优先用 <code>details</code>。</p>
+      </div>
+      <details data-ui="drawer" data-tone="faq" data-title="追问：索引是不是越多越好？">
+        <p>不是。写性能会下降：每次 insert/update 都要维护所有索引的 B+ 树；此外优化器可能选错索引。</p>
+      </details>
+      <details data-ui="drawer" data-tone="pit" data-title="踩坑：线上真实事故">
+        <p>给 <code>status</code>（枚举 3 个值）建了索引，优化器认为区分度太低直接全表扫描，索引白白占用写入吞吐。</p>
+      </details>
+    </div>
+
+    <p class="demo-label">写法</p>
+    <div data-ui="code" data-lang="html" data-title="drawer 组件契约">&lt;!-- 组：自带展开/收起全部工具条，data-accordion=true 时互斥 --&gt;
+&lt;div data-ui="drawer-group" data-accordion="false" data-expand-all="true"&gt;
+
+  &lt;details data-ui="drawer" data-title="标题文字" data-icon="📚" open&gt;
+    正文可以是任意 HTML：段落、表格、代码块、嵌套抽屉都行
+  &lt;/details&gt;
+
+  &lt;!-- data-tone 决定视觉：faq(Q 徽标) | answer | pit(红边) | flat(书页风格) --&gt;
+  &lt;details data-ui="drawer" data-tone="faq" data-title="追问：xxx？"&gt;…&lt;/details&gt;
+&lt;/div&gt;</div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <section data-ui="section" data-title="🃏 cards — 卡片组">
+    <p class="demo-label">效果（<code>data-cols="auto"</code> 时按宽度自动换列，窄屏自动单列）</p>
+    <div data-ui="cards" data-cols="auto" data-min="250">
+      <div data-ui="card" data-icon="🛒" data-title="秒杀库存扣减" data-tags="高频|读多写少" data-tone="hot">
+        <p>Redis 预减库存 + 令牌队列削峰，DB 侧只落最终订单，避免行锁排队导致连接池打满。</p>
+      </div>
+      <div data-ui="card" data-icon="💰" data-title="支付回调幂等" data-tone="key">
+        <p>以 <code>out_trade_no</code> 建唯一索引，重复回调命中唯一键冲突直接返回成功，业务层不再重复记账。</p>
+      </div>
+      <div data-ui="card" data-icon="📮" data-title="Feed 流推拉结合">
+        <p>普通用户写扩散，大 V 读扩散，避免明星发一条动态触发千万次写入。</p>
+      </div>
+      <div data-ui="card" data-icon="🧾" data-title="对账任务" data-tone="ok">
+        <p>T+1 凌晨分片跑批，逐笔比对渠道账单，差异写入待处理表由人工介入。</p>
+      </div>
+    </div>
+    <div data-ui="cards" data-cols="2">
+      <div data-ui="card" data-icon="🔧" data-title="data-cols=2">固定两列，超宽内容会等分。</div>
+      <div data-ui="card" data-icon="📐" data-title="卡片内可嵌任意组件">
+        <div data-ui="callout" data-tone="key" data-title="内嵌 callout">
+          抽屉、代码块、表格、流程图都能放进卡片。
+        </div>
+      </div>
+    </div>
+
+    <p class="demo-label">写法</p>
+    <div data-ui="code" data-lang="html" data-title="cards 组件契约">&lt;div data-ui="cards"
+     data-cols="auto"       &lt;!-- auto(默认，自适应) | 1 | 2 | 3 | 4 --&gt;
+     data-min="250"&gt;        &lt;!-- auto 模式下的最小列宽 px --&gt;
+
+  &lt;div data-ui="card"
+       data-icon="🛒"
+       data-title="场景标题"
+       data-tags="高频,读多写少"   &lt;!-- 逗号分隔，自动渲染成徽标 --&gt;
+       data-tone="hot"&gt;            &lt;!-- hot | key | ok | flat：顶部色条 --&gt;
+    &lt;p&gt;卡片描述文字…&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <section data-ui="section" data-title="📊 table — 表格">
+    <p class="demo-label">效果（<code>data-best</code> 高亮推荐列，右上角自带「复制为 Markdown」）</p>
+    <table data-ui="table" data-caption="常见索引结构对比" data-best="3" data-sticky="true" data-nowrap="true">
+      <thead>
+        <tr><th>维度</th><th>B 树</th><th>B+ 树</th><th>Hash</th><th>跳表</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>区间查询</td><td>需中序遍历</td><td>叶子链表顺序扫描</td><td>不支持</td><td>支持</td></tr>
+        <tr><td>单次查询 IO</td><td>较高</td><td>低（非叶子不存数据）</td><td>1 次</td><td>内存结构</td></tr>
+        <tr><td>典型使用者</td><td>早期 ISAM</td><td>MySQL InnoDB</td><td>Memory 引擎</td><td>Redis zset</td></tr>
+        <tr><td>等值查询</td><td>O(log n)</td><td>O(log n)</td><td data-mono>O(1)</td><td>O(log n)</td></tr>
+      </tbody>
+    </table>
+
+    <table data-ui="table" data-caption="事务隔离级别与并发问题">
+      <thead>
+        <tr><th>隔离级别</th><th>脏读</th><th>不可重复读</th><th>幻读</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>READ UNCOMMITTED</td><td>可能</td><td>可能</td><td>可能</td></tr>
+        <tr><td>READ COMMITTED</td><td>✕</td><td>可能</td><td>可能</td></tr>
+        <tr><td>REPEATABLE READ（MySQL 默认）</td><td>✕</td><td>✕</td><td>快照读下已解决</td></tr>
+        <tr><td>SERIALIZABLE</td><td>✕</td><td>✕</td><td>✕</td></tr>
+      </tbody>
+    </table>
+
+    <p class="demo-label">写法</p>
+    <div data-ui="code" data-lang="html" data-title="table 组件契约">&lt;!-- data-ui 直接写在 &lt;table&gt; 上，外壳/滚动条/工具条自动包裹 --&gt;
+&lt;table data-ui="table"
+       data-caption="表格标题（右上角工具条）"
+       data-best="2"          &lt;!-- 高亮第 2 列为「推荐项」，列号从 1 开始，支持多列 "2,4" --&gt;
+       data-sticky="true"     &lt;!-- 配合 data-max 时表头吸顶 --&gt;
+       data-nowrap="true"     &lt;!-- 首列不换行 --&gt;
+       data-max="320"&gt;        &lt;!-- 超高时内部滚动 --&gt;
+  &lt;thead&gt;&lt;tr&gt;&lt;th&gt;维度&lt;/th&gt;&lt;th&gt;A&lt;/th&gt;&lt;th&gt;B&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+  &lt;tbody&gt;&lt;tr&gt;&lt;td&gt;行名&lt;/td&gt;&lt;td&gt;…&lt;/td&gt;&lt;td&gt;…&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;
+&lt;/table&gt;</div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <section data-ui="section" data-title="🎤 tabs — 选项卡（话术 / 多语言对照）">
+    <p class="demo-label">效果一：三级话术（<code>data-mem</code> 会记住你上次看到的级别）</p>
+    <div data-ui="tabs" data-mem="speech-demo">
+      <div data-ui="tab" data-key="junior" data-label="🟢 初级">
+        <div class="ui-speech-block" data-part="intro">
+          <div class="ui-speech-part">【总】核心结论</div>
+          <p>索引就像书的目录，先查目录再翻到那一页，不用整本书从头读。</p>
+        </div>
+        <div class="ui-speech-block" data-part="body">
+          <div class="ui-speech-part">【分】分点展开</div>
+          <ol><li>没索引要全表扫描</li><li>有索引按 B+ 树定位</li><li>但索引占空间、拖慢写入</li></ol>
+        </div>
+        <div class="ui-speech-block" data-part="end">
+          <div class="ui-speech-part">【总】总结升华</div>
+          <p>所以索引是用空间换时间，要按查询场景建。</p>
+        </div>
+      </div>
+      <div data-ui="tab" data-key="mid" data-label="🟡 中级">
+        <div class="ui-speech-block" data-part="intro">
+          <div class="ui-speech-part">【总】核心结论</div>
+          <p>InnoDB 索引是 B+ 树，聚簇索引叶子存整行、二级索引叶子存主键，因此二级索引查询可能要回表。</p>
+        </div>
+        <div class="ui-speech-block" data-part="body">
+          <div class="ui-speech-part">【分】分点展开</div>
+          <ol>
+            <li>树矮 → IO 少：一个 16KB 页可放上千个键，三层能撑两千万行</li>
+            <li>回表代价：二级索引找到主键后再走一遍聚簇树</li>
+            <li>覆盖索引可消除回表，<code>Extra: Using index</code></li>
+          </ol>
+        </div>
+        <div class="ui-speech-block" data-part="end">
+          <div class="ui-speech-part">【总】总结升华</div>
+          <p>建索引的核心是提升区分度 + 减少回表，用 EXPLAIN 验证。</p>
+        </div>
+      </div>
+      <div data-ui="tab" data-key="senior" data-label="🔴 高级">
+        <div class="ui-speech-block" data-part="intro">
+          <div class="ui-speech-part">【总】核心结论</div>
+          <p>索引优化本质是在「写放大、空间、读性能」三角里做取舍，要结合优化器的代价模型来看。</p>
+        </div>
+        <div class="ui-speech-block" data-part="body">
+          <div class="ui-speech-part">【分】分点展开</div>
+          <ol>
+            <li>优化器按基数（index dives 采样）估行数，统计信息漂移会选错索引，可用 <code>ANALYZE TABLE</code> 或 force index</li>
+            <li>RR 下靠 next-key lock 解决幻读，间隙锁在并发插入时容易放大锁冲突</li>
+            <li>踩坑：给低区分度列建索引 + <code>ORDER BY</code> 文件排序，线上大事务锁表</li>
+          </ol>
+        </div>
+        <div class="ui-speech-block" data-part="end">
+          <div class="ui-speech-part">【总】总结升华</div>
+          <p>我的做法是先看业务读写比，再用慢日志 + EXPLAIN 反推索引设计。</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="demo-label">效果二：同一逻辑多语言对照（tab 里放代码块）</p>
+    <div data-ui="tabs" data-active="go">
+      <div data-ui="tab" data-key="java" data-label="☕ Java">
+        <div data-ui="code" data-lang="java">synchronized (lock) { count++; }</div>
+      </div>
+      <div data-ui="tab" data-key="go" data-label="🐹 Go">
+        <div data-ui="code" data-lang="go">mu.Lock()
+count++
+mu.Unlock()</div>
+      </div>
+      <div data-ui="tab" data-key="python" data-label="🐍 Python">
+        <div data-ui="code" data-lang="python">with lock:
+    count += 1</div>
+      </div>
+    </div>
+
+    <p class="demo-label">写法</p>
+    <div data-ui="code" data-lang="html" data-title="tabs 组件契约">&lt;div data-ui="tabs"
+     data-active="mid"      &lt;!-- 默认选中哪个 data-key --&gt;
+     data-mem="speech-01"&gt;  &lt;!-- 记住用户选择（localStorage）；URL #key 也可直接定位 --&gt;
+  &lt;div data-ui="tab" data-key="junior" data-label="🟢 初级（~150字）"&gt;
+    …任意内容…
+  &lt;/div&gt;
+  &lt;div data-ui="tab" data-key="mid"    data-label="🟡 中级（~300字）"&gt;…&lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- 自带：role/aria 语义、← → 键盘切换、切换淡入动画
+     话术「总-分-总」用 &lt;div class="ui-speech-block" data-part="intro|body|end"&gt; --&gt;</div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <section data-ui="section" data-title="💡 callout — 提示框">
+    <div data-ui="callout" data-tone="tip" data-title="💡 提示">默认的蓝色提示，用于补充说明。</div>
+    <div data-ui="callout" data-tone="key" data-title="🎯 面试官想听什么">先给结论，再讲原理，最后落到自己的项目实践。</div>
+    <div data-ui="callout" data-tone="hot" data-title="🔥 高频追问">「那 MySQL 为什么默认是 RR 而不是 RC？」—— 主从一致性 + binlog 格式。</div>
+    <div data-ui="callout" data-tone="pit" data-title="🕳️ 常见坑">把 <code>OR</code> 条件写在没有括号的地方，索引可能整体失效。</div>
+    <div data-ui="callout" data-tone="ok" data-title="✅ 最佳实践">联合索引遵循最左前缀，等值列放前、范围列放后。</div>
+    <div data-ui="callout" data-tone="warn">不写 data-title 时自动用语气默认标题。</div>
+    <div data-ui="callout" data-tone="quote" data-title="📖 出处">《High Performance MySQL》第 6 章 · 索引优化（作者 Baron Schwartz 等）</div>
+    <div data-ui="callout" data-tone="note" data-title="📌 说明">note / 默认 tip 为中性色，用于弱提醒。</div>
+
+    <p class="demo-label">写法</p>
+    <div data-ui="code" data-lang="html" data-title="callout 组件契约">&lt;div data-ui="callout"
+     data-tone="tip"      &lt;!-- tip | note | key | hot | pit | warn | ok | quote --&gt;
+     data-title="🎯 面试重点"  &lt;!-- 省略则用 tone 默认标题 --&gt;
+     data-icon="🎯"&gt;        &lt;!-- 覆盖左侧图标 --&gt;
+  正文内容，可以放多个段落、列表、代码块。
+&lt;/div&gt;</div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <section data-ui="section" data-title="🔤 word — 生词提示 + 自动标注">
+    <p>写法一（内联）：<span class="ui-word" data-ui="word" data-p="/dɪˈstrɪbjuːtɪd/" data-t="分布式的">distributed</span> 直接标音标翻译，不查词典。</p>
+    <p>写法二（查词典）：把 <span class="ui-word" data-ui="word">idempotent</span>、<span class="ui-word" data-ui="word">semaphore</span>、<span class="ui-word" data-ui="word">garbage collection</span> 这类词包起来，<code>data-p</code>/<code>data-t</code> 由 <code>data/dict.js</code> 自动填。</p>
+    <div data-ui="words-auto">
+      <p>写法三（全自动）：下面这段被包在 <code>data-ui="words-auto"</code> 容器里 —— 正文中的 transaction、isolation、latency、throughput、consistent hashing、buffer pool 会被自动识别并加提示，生成笔记时一个词都不用标。代码块里的 throughput、链接里的 latency 都不会被标注。</p>
+    </div>
+
+    <p class="demo-label">写法</p>
+    <div data-ui="code" data-lang="html" data-title="word 组件契约">&lt;!-- 单个词 --&gt;
+&lt;span data-ui="word"&gt;idempotent&lt;/span&gt;                  &lt;!-- 查 data/dict.js --&gt;
+&lt;span data-ui="word" data-t="幂等"&gt;idempotent&lt;/span&gt;          &lt;!-- 词典没有时内联兜底 --&gt;
+
+&lt;!-- 整块自动标注：扫描容器内文本节点，命中词典就包裹 --&gt;
+&lt;section data-ui="words-auto"&gt; … 正文 … &lt;/section&gt;
+&lt;!-- 或给 page 加 data-words="auto" 让全篇自动标注 --&gt;
+&lt;!-- 词典里没有、也没写 data-t 的词不会画虚线，不会出现空气泡 --&gt;</div>
+    <div data-ui="callout" data-tone="note" data-title="词典维护">
+      <code>data/dict.js</code> 结构为 <code>'短语': ['音标', '中文']</code>，全站共享；新增术语只需往这里加一条，所有笔记同时生效。
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <section data-ui="section" data-title="🗂 section / page — 章节与页面壳">
+    <p>本篇每一节就是一个 <code>data-ui="section"</code>：左侧自动编号、自动生成右侧目录、悬停出现 🔗 可复制本节直达链接。目录面板支持收起/展开、滚动高亮、顶部阅读进度条。</p>
+    <div data-ui="code" data-lang="html" data-title="section / page 组件契约">&lt;div data-ui="page"
+     data-title="什么是索引？"                       &lt;!-- 渲染 h1；缺省 document.title 时自动回填 --&gt;
+     data-path="Java基础 &amp;gt; MySQL &amp;gt; 索引"        &lt;!-- 面包屑，&amp;gt; 或 > 分隔 --&gt;
+     data-subtitle="一句话副标题"
+     data-keypoints="B+树,覆盖索引,回表"              &lt;!-- 自动渲染成 🎯 考察知识点徽标 --&gt;
+     data-badges="高频考察,难度⭐⭐⭐"                 &lt;!-- 含「高频/必问」自动红，「重点」自动黄 --&gt;
+     data-words="auto"                               &lt;!-- 可选：全篇自动标注生词 --&gt;
+     data-number="true"&gt;                             &lt;!-- 可选：章节编号开关 --&gt;
+
+  &lt;section data-ui="section" data-title="📚 知识点拆分"&gt;
+    … 正文与组件自由组合 …
+  &lt;/section&gt;
+&lt;/div&gt;
+&lt;!-- 至少 2 个 section 才会生成右侧目录；&lt; 1100px 目录自动隐藏 --&gt;</div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <section data-ui="section" data-title="🔧 兜底行为与公共 API">
+    <div data-ui="callout" data-tone="warn" data-title="写错组件名会怎样">
+      未知 <code>data-ui="xxx"</code> 不报错、不吞内容：按普通 HTML 渲染，仅在控制台提示一次。缺 <code>hljs</code> → 代码块退化为等宽纯文本仍可复制；缺 <code>mermaid</code> → 流程图退化为源码文本；mermaid 语法错 → 红色错误框 + 原源码，页面其余部分正常。
+    </div>
+    <div data-ui="code" data-lang="js" data-title="window.NoteUI">&lt;!-- 供 index.html 或脚本调用 --&gt;
+NoteUI.refresh(document)        &lt;!-- 动态插入内容后重新扫描组件 --&gt;
+NoteUI.openLightbox(el)         &lt;!-- 对任意含 svg/img 的容器开灯箱 --&gt;
+NoteUI.setCodeTheme('monokai')  &lt;!-- 切代码主题（github-dark|monokai|tomorrow-night-bright） --&gt;
+NoteUI.expandAll(true)          &lt;!-- 展开/收起全篇抽屉 --&gt;
+NoteUI.register('my-widget', fn)&lt;!-- 注册自定义组件 --&gt;</div>
+    <p>打印 / 导出 PDF 时会自动展开全部抽屉、展开折叠代码、隐藏目录与按钮，三个 tab 面板全部展开打印。</p>
+  </section>
+
+</div>
+
+<script src="assets/lib/highlight/highlight.min.js"></script>
+<script src="assets/lib/mermaid/mermaid.min.js"></script>
+<script src="assets/js/note-ui.js"></script>
+<script>
+  // 演示页专用：代码主题循环切换（真实项目由 index.html 齿轮按钮控制）
+  var THEMES = ['github-dark', 'monokai', 'tomorrow-night-bright'];
+  function cycleTheme() {
+    var cur = null;
+    document.querySelectorAll('.code-theme').forEach(function (l) { if (!l.disabled) cur = l.dataset.theme; });
+    var next = THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length];
+    NoteUI.setCodeTheme(next);
+    try { localStorage.setItem('notes-code-theme', next); } catch (e) { }
+    try {
+      window.parent.postMessage({ type: 'code-theme-change', theme: next }, '*');
+    } catch (e) { }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITLE}} — 面试笔记</title>
+  <base href="{{BASE_HREF}}">
+  <script src="assets/lib/tailwind.min.js"></script>
+  <link rel="stylesheet" href="assets/lib/highlight/github-dark.min.css" class="code-theme" data-theme="github-dark">
+  <link rel="stylesheet" href="assets/lib/highlight/monokai.min.css" class="code-theme" data-theme="monokai" disabled>
+  <link rel="stylesheet" href="assets/lib/highlight/tomorrow-night-bright.min.css" class="code-theme" data-theme="tomorrow-night-bright" disabled>
+  <link rel="stylesheet" href="assets/css/note-style.css">
+</head>
+<body class="p-6 max-w-4xl mx-auto font-sans">
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 考点标签                                           -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="topic-path">
+    <span class="topic-path-icon">🏷️</span>
+    <span>（填写考点路径，如：Java基础 &gt; 面向对象 &gt; 封装）</span>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 考察知识点                                         -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="topic-keypoints">
+    <span class="topic-keypoints-label">🎯 考察知识点：</span>
+    <span class="topic-keypoint">知识点1</span>
+    <span class="topic-keypoint">知识点2</span>
+    <span class="topic-keypoint">知识点3</span>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 模块: 一句话总结                                   -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="mb-10">
+    <div class="summary-card bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl p-8 shadow-lg">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="text-3xl">✨</span>
+        <h1 class="text-2xl font-bold">{{TITLE}}</h1>
+      </div>
+      <p class="text-lg text-blue-100 leading-relaxed">
+        用一句话概括核心结论。（待补充）
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 模块: 知识点拆分                                   -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="mb-10">
+    <h2 class="section-title">📚 知识点拆分</h2>
+    <div class="accordion space-y-3">
+      <details class="knowledge-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" open>
+        <summary class="px-5 py-4 cursor-pointer hover:bg-gray-50 font-semibold text-gray-800 select-none">
+          知识点1：标题（待补充）
+        </summary>
+        <div class="knowledge-content px-5 pb-4 pt-3 text-gray-600 leading-relaxed border-t border-gray-100">
+          内容描述（待补充）
+        </div>
+      </details>
+
+      <details class="knowledge-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <summary class="px-5 py-4 cursor-pointer hover:bg-gray-50 font-semibold text-gray-800 select-none">
+          知识点2：标题（待补充）
+        </summary>
+        <div class="knowledge-content px-5 pb-4 pt-3 text-gray-600 leading-relaxed border-t border-gray-100">
+          内容描述（待补充）
+        </div>
+      </details>
+
+      <details class="knowledge-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <summary class="px-5 py-4 cursor-pointer hover:bg-gray-50 font-semibold text-gray-800 select-none">
+          知识点3：标题（待补充）
+        </summary>
+        <div class="knowledge-content px-5 pb-4 pt-3 text-gray-600 leading-relaxed border-t border-gray-100">
+          内容描述（待补充）
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 模块: 流程图（Mermaid）                             -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="mb-10">
+    <h2 class="section-title">🔁 流程图</h2>
+    <div class="mermaid-wrapper bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <pre class="mermaid">
+graph TD
+    A[开始] --> B{条件判断}
+    B -->|是| C[执行操作A]
+    B -->|否| D[执行操作B]
+    C --> E[结束]
+    D --> E
+      </pre>
+      <p class="text-center text-sm text-gray-400 mt-3">图：{{TITLE}}流程图（待替换）</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 模块: 对比表格                                     -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="mb-10">
+    <h2 class="section-title">📊 对比分析</h2>
+    <div class="table-wrapper overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200">
+      <table class="compare-table w-full text-left">
+        <thead>
+          <tr class="bg-gray-50">
+            <th class="px-5 py-3 font-semibold text-gray-700">对比维度</th>
+            <th class="px-5 py-3 font-semibold text-gray-700">A</th>
+            <th class="px-5 py-3 font-semibold text-gray-700">B</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="px-5 py-3 font-medium text-gray-600">维度1</td>
+            <td class="px-5 py-3 text-gray-600">描述A（待补充）</td>
+            <td class="px-5 py-3 text-gray-600">描述B（待补充）</td>
+          </tr>
+          <tr>
+            <td class="px-5 py-3 font-medium text-gray-600">维度2</td>
+            <td class="px-5 py-3 text-gray-600">描述A（待补充）</td>
+            <td class="px-5 py-3 text-gray-600">描述B（待补充）</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 模块: 代码示例                                     -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="mb-10">
+    <h2 class="section-title">💻 代码示例</h2>
+    <div class="code-wrapper bg-[#1e1e1e] rounded-xl overflow-hidden shadow-sm border border-gray-700 mb-4">
+      <div class="code-header flex items-center justify-between px-4 py-2 bg-[#2d2d2d] border-b border-gray-700">
+        <span class="text-xs text-gray-400 font-mono code-lang">Language</span>
+        <div class="flex items-center gap-2">
+          <button class="copy-btn text-xs text-gray-400 hover:text-white transition" onclick="copyCode(this)">📋 复制</button>
+        </div>
+      </div>
+      <pre class="p-4 m-0 overflow-x-auto"><code class="language-plaintext">
+// TODO: 补充代码示例
+      </code></pre>
+    </div>
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-gray-700 leading-relaxed">
+      <strong>💡 代码解读：</strong>（待补充）
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 模块: 面试回答话术（三级 Tab）                      -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="mb-10">
+    <h2 class="section-title">🎤 面试回答话术</h2>
+    <div class="speech-tabs bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="flex border-b border-gray-200 bg-gray-50">
+        <button class="speech-tab active px-5 py-3 font-medium text-sm transition border-b-2 border-blue-600 bg-white text-blue-600"
+          onclick="switchSpeechLevel(this, 'junior')">🟢 初级（~150字）</button>
+        <button class="speech-tab px-5 py-3 font-medium text-sm transition text-gray-500"
+          onclick="switchSpeechLevel(this, 'mid')">🟡 中级（~300字）</button>
+        <button class="speech-tab px-5 py-3 font-medium text-sm transition text-gray-500"
+          onclick="switchSpeechLevel(this, 'senior')">🔴 高级（~500字）</button>
+      </div>
+
+      <div class="speech-content p-6" id="speech-junior">
+        <div class="speech-total intro mb-4">
+          <span class="font-bold text-blue-700">【总】核心结论</span>
+          <p class="mt-1 text-gray-700">一句话核心结论。（待补充）</p>
+        </div>
+        <div class="speech-total body mb-4">
+          <span class="font-bold text-gray-700">【分】分点展开</span>
+          <ol class="list-decimal list-inside text-gray-600 space-y-2 mt-2">
+            <li>要点一（待补充）</li>
+            <li>要点二（待补充）</li>
+            <li>要点三（待补充）</li>
+          </ol>
+        </div>
+        <div class="speech-total conclusion">
+          <span class="font-bold text-green-700">【总】总结升华</span>
+          <p class="mt-1 text-gray-700">总结，点出关键词。（待补充）</p>
+        </div>
+      </div>
+
+      <div class="speech-content p-6 hidden" id="speech-mid">
+        <div class="speech-total intro mb-4">
+          <span class="font-bold text-blue-700">【总】核心结论（含原理视角）</span>
+          <p class="mt-1 text-gray-700">（待补充）</p>
+        </div>
+        <div class="speech-total body mb-4">
+          <span class="font-bold text-gray-700">【分】分点展开（含原理/源码分析）</span>
+          <ol class="list-decimal list-inside text-gray-600 space-y-2 mt-2">
+            <li>要点一（含原理分析）（待补充）</li>
+            <li>要点二（含源码解读）（待补充）</li>
+            <li>要点三（待补充）</li>
+          </ol>
+        </div>
+        <div class="speech-total conclusion">
+          <span class="font-bold text-green-700">【总】总结升华</span>
+          <p class="mt-1 text-gray-700">体现深度理解。（待补充）</p>
+        </div>
+      </div>
+
+      <div class="speech-content p-6 hidden" id="speech-senior">
+        <div class="speech-total intro mb-4">
+          <span class="font-bold text-blue-700">【总】核心结论（含架构视角）</span>
+          <p class="mt-1 text-gray-700">（待补充）</p>
+        </div>
+        <div class="speech-total body mb-4">
+          <span class="font-bold text-gray-700">【分】分点展开（含架构/调优/踩坑经验）</span>
+          <ol class="list-decimal list-inside text-gray-600 space-y-2 mt-2">
+            <li>含架构设计（待补充）</li>
+            <li>含性能调优经验（待补充）</li>
+            <li>含实际踩坑经验（待补充）</li>
+          </ol>
+        </div>
+        <div class="speech-total conclusion">
+          <span class="font-bold text-green-700">【总】总结升华</span>
+          <p class="mt-1 text-gray-700">体现指导他人的能力。（待补充）</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 模块: 业务场景                                     -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="mb-10">
+    <h2 class="section-title">🏢 业务场景</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="scene-card bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xl">🔹</span>
+          <h4 class="font-semibold text-gray-800">场景1：标题（待补充）</h4>
+        </div>
+        <p class="text-gray-600 text-sm leading-relaxed">描述该业务场景。（待补充）</p>
+      </div>
+      <div class="scene-card bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xl">🔹</span>
+          <h4 class="font-semibold text-gray-800">场景2：标题（待补充）</h4>
+        </div>
+        <p class="text-gray-600 text-sm leading-relaxed">描述该业务场景。（待补充）</p>
+      </div>
+      <div class="scene-card bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xl">🔹</span>
+          <h4 class="font-semibold text-gray-800">场景3：标题（待补充）</h4>
+        </div>
+        <p class="text-gray-600 text-sm leading-relaxed">描述该业务场景。（待补充）</p>
+      </div>
+      <div class="scene-card bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xl">🔹</span>
+          <h4 class="font-semibold text-gray-800">场景4：标题（待补充）</h4>
+        </div>
+        <p class="text-gray-600 text-sm leading-relaxed">描述该业务场景。（待补充）</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 模块: 面试官追问及答案                              -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="mb-10">
+    <h2 class="section-title">💬 面试官追问</h2>
+    <div class="faq-list space-y-3">
+      <details class="faq-item bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <summary class="px-5 py-4 cursor-pointer hover:bg-gray-50 font-semibold text-gray-800 select-none">
+          ❓ 追问1：题目（待补充）
+        </summary>
+        <div class="faq-answer px-5 pb-4 pt-3 text-gray-600 border-t border-gray-100">
+          <p class="font-semibold text-gray-700 mb-2">💡 回答思路：</p>
+          回答内容（待补充）
+        </div>
+      </details>
+      <details class="faq-item bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <summary class="px-5 py-4 cursor-pointer hover:bg-gray-50 font-semibold text-gray-800 select-none">
+          ❓ 追问2：题目（待补充）
+        </summary>
+        <div class="faq-answer px-5 pb-4 pt-3 text-gray-600 border-t border-gray-100">
+          <p class="font-semibold text-gray-700 mb-2">💡 回答思路：</p>
+          回答内容（待补充）
+        </div>
+      </details>
+      <details class="faq-item bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <summary class="px-5 py-4 cursor-pointer hover:bg-gray-50 font-semibold text-gray-800 select-none">
+          ❓ 追问3：题目（待补充）
+        </summary>
+        <div class="faq-answer px-5 pb-4 pt-3 text-gray-600 border-t border-gray-100">
+          <p class="font-semibold text-gray-700 mb-2">💡 回答思路：</p>
+          回答内容（待补充）
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 底部                                               -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <footer class="text-center text-gray-400 text-sm py-8 border-t border-gray-200 mt-10">
+    <p>📝 面试笔记 · {{TITLE}}</p>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 脚本（按依赖顺序加载）                              -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <script src="assets/lib/highlight/highlight.min.js"></script>
+  <script src="assets/lib/mermaid/mermaid.min.js"></script>
+  <script src="assets/js/note.js"></script>
+  <script src="assets/js/mermaid-lightbox.js"></script>
+  <script src="assets/js/toc.js"></script>
+</body>
+</html>
